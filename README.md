@@ -1,4 +1,4 @@
-# HacktoberFest-2022
+# Hack The HacktoberFest-2022
 # Submit your PR on this new repo [Hacktoberfest](https://github.com/Women-In-Engineering-IEEE-CUSB/HacktoberFest-2022) , There we are merging all PR. 
 
 # Contribution Rules📚:
