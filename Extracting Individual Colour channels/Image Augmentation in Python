@@ -1,0 +1,147 @@
+**1** Loading Image into Environment
+
+Importing required Libraries
+"""
+
+import cv2
+import urllib.request
+import numpy as np
+from google.colab.patches import cv2_imshow
+
+"""Then, load the image from a url. In this case I'm using an image from wikimedia commons, a free and open source image repository"""
+
+req = urllib.request.urlopen('https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Juvenile_Ragdoll.jpg/330px-Juvenile_Ragdoll.jpg')
+arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
+img = cv2.imdecode(arr, -1) # 'Load it as it is'
+
+"""Verify that the image has been loaded correctly (OpenCV, which I am using stores images as a numpy array)"""
+
+type(img)
+
+"""Finally, view the image donwloaded"""
+
+cv2_imshow(img)
+
+"""**2** Check Dimensions of the Downloaded Image"""
+
+height, width, channels = img.shape[0:3]
+
+print('The height of our image is', height, 'pixels.')
+
+print('The width of our image is', width, 'pixels.')
+
+print('The image has', channels, 'color channels: red, blue and green.')
+
+"""**3** Extract Individual Channels from the Image array and display
+
+First I'll show the red channel
+"""
+
+img_red = img.copy()
+img_red[:,:,0] = 0 #set blue channel values to 0
+img_red[:,:,1] = 0 #set green channel values to 0
+
+cv2_imshow(img_red)
+
+"""Then the green"""
+
+img_green = img.copy()
+img_green[:,:,0] = 0 #set blue channel values to 0
+img_green[:,:,2] = 0 #set red channel values to 0
+
+cv2_imshow(img_green)
+
+"""And finally, the blue channel"""
+
+img_blue = img.copy()
+img_blue[:,:,2] = 0 #set red channel values to 0
+img_blue[:,:,1] = 0 #set green channel values to 0
+
+cv2_imshow(img_blue)
+
+"""**4** Apply a sepia filter"""
+
+img_gray = np.zeros((height, width, channels))
+
+gray = [[1/3, 1/3, 1/3],[1/3, 1/3, 1/3],[1/3, 1/3, 1/3]]
+
+for i in range(height):
+    for j in range(width):
+        img_gray[i, j] = np.matmul(img[i, j], gray)
+
+cv2_imshow(img_gray)
+
+sepia_img = img.copy()
+
+
+sepia_filter = np.array([[.769, .393, .189],
+                         [.686, .349, .168],
+                         [.272, .534, .131]])
+
+for i in range(height):
+    for j in range(width):
+        sepia_img[i, j] = np.matmul(img[i, j], sepia_filter)
+
+vis = np.concatenate((img, sepia_img), axis=1)
+cv2_imshow(vis)
+
+"""For some reason the matrix given simply does not give a sepia image, it returns... something else. I'll try a better, more simpler approach below"""
+
+sepia = img_gray.copy()
+sepia[:,:,0] *= 153/255 #B
+sepia[:,:,1] *= 204/255 #G
+sepia[:,:,2] *= 255/255 #R
+
+vis = np.concatenate((img, sepia), axis=1)
+cv2_imshow(vis)
+
+"""**5** Invert Image Colors"""
+
+img_custom = img.copy()
+
+invert = [[-1, 0, 0],[0, -1, 0],[0, 0, -1]]
+
+for i in range(height):
+    for j in range(width):
+        img_custom[i, j] = np.matmul(img_custom[i, j], invert)
+
+vis = np.concatenate((img, img_custom), axis=1)
+cv2_imshow(vis)
+
+"""**6** Enhancing certain colors
+
+I'll use a matrix to set all colors except the selected channel to 0.75 and the selected channel at 1. First I'll do red, then green and finally, blue
+"""
+
+img_custom = np.zeros((height, width, channels))
+
+custom = [[3/4, 0, 0],[0, 3/4, 0],[0, 0, 1]]
+
+for i in range(height):
+    for j in range(width):
+        img_custom[i, j] = np.matmul(img[i, j], custom)
+
+vis = np.concatenate((img, img_custom), axis=1)
+cv2_imshow(vis)
+
+img_custom = np.zeros((height, width, channels))
+
+custom = [[3/4, 0, 0],[0, 1, 0],[0, 0, 3/4]]
+
+for i in range(height):
+    for j in range(width):
+        img_custom[i, j] = np.matmul(img[i, j], custom)
+
+vis = np.concatenate((img, img_custom), axis=1)
+cv2_imshow(vis)
+
+img_custom = np.zeros((height, width, channels))
+
+custom = [[1, 0, 0],[0, 3/4, 0],[0, 0, 3/4]]
+
+for i in range(height):
+    for j in range(width):
+        img_custom[i, j] = np.matmul(img[i, j], custom)
+
+vis = np.concatenate((img, img_custom), axis=1)
+cv2_imshow(vis)
